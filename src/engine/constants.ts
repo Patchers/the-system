@@ -94,3 +94,7 @@ export const AGI_UNIT_MULTIPLIER = 1
 export const DEFAULT_CALORIE_GOAL = 2200
 export const DEFAULT_PENALTY_ENABLED = true
 export const DEFAULT_SOUND_ENABLED = true
+
+/* ---------- Nutrition ---------- */
+/** "under": goal met when logged calories are > 0 and <= goal. "over": met when >= goal. */
+export const CALORIE_GOAL_MODE: "under" | "over" = "under"

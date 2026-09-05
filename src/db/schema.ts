@@ -17,7 +17,8 @@ import type {
  * Dexie database. Only `src/repo/*` may import this. Components never do.
  *
  * Index strings list the primary key first, then secondary indexes.
- * `&` marks a unique index, `[a+b]` a compound index.
+ * `&` marks a unique index, `[a+b]` a compound index. Booleans cannot be
+ * indexed in IndexedDB, so `active` and `recoveryMode` are filtered in code.
  */
 export class SystemDB extends Dexie {
   hunter!: EntityTable<Hunter, "id">
@@ -36,7 +37,7 @@ export class SystemDB extends Dexie {
     super(name)
     this.version(1).stores({
       hunter: "id, deleted",
-      quests: "id, type, active, dungeonId, deleted, [type+active]",
+      quests: "id, type, dungeonId, deleted",
       completions: "id, questId, date, deleted, [questId+date]",
       dungeons: "id, status, deadline, deleted",
       workouts: "id, date, templateId, deleted",

@@ -68,3 +68,8 @@ export function msUntilRollover(now: Date, rolloverHour = DAY_ROLLOVER_HOUR): nu
   if (next.getTime() <= now.getTime()) next.setDate(next.getDate() + 1)
   return next.getTime() - now.getTime()
 }
+
+/** Current instant as ISO-8601. The only place `new Date()` is read for a timestamp. */
+export function nowIso(): string {
+  return new Date().toISOString()
+}

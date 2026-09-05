@@ -3,7 +3,8 @@
  * Idempotent: does nothing if a hunter already exists.
  */
 import type { SystemDB } from "./schema"
-import type { BaseRecord, Hunter, Quest, Settings } from "./types"
+import { stamp } from "./record"
+import type { Hunter, Quest, Settings } from "./types"
 import {
   DAY_ROLLOVER_HOUR,
   DEFAULT_CALORIE_GOAL,
@@ -14,14 +15,6 @@ import {
   STARTING_RANK,
   STARTING_TITLE,
 } from "../engine/constants"
-
-export function newId(): string {
-  return crypto.randomUUID()
-}
-
-export function stamp(now: string, id = newId()): BaseRecord {
-  return { id, createdAt: now, updatedAt: now, deleted: 0 }
-}
 
 export function makeHunter(today: string, now: string): Hunter {
   return {
