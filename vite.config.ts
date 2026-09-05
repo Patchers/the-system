@@ -4,7 +4,13 @@ import tailwindcss from "@tailwindcss/vite"
 import { defineConfig } from "vite"
 import { VitePWA } from "vite-plugin-pwa"
 
+// GitHub Pages serves this from https://<user>.github.io/the-system/, a subpath,
+// not the domain root. The deploy workflow sets GITHUB_PAGES=true; every other
+// build (local dev, npm run preview) stays at root.
+const base = process.env.GITHUB_PAGES ? "/the-system/" : "/"
+
 export default defineConfig({
+  base,
   plugins: [
     react(),
     tailwindcss(),
@@ -15,8 +21,9 @@ export default defineConfig({
         name: "The System",
         short_name: "System",
         description: "Solo-hunter progression tracker",
-        start_url: "/",
-        scope: "/",
+        // Relative to the manifest's own URL, so they work under any base path.
+        start_url: ".",
+        scope: ".",
         display: "standalone",
         orientation: "portrait",
         background_color: "#05070d",
