@@ -12,6 +12,7 @@ import type {
   Workout,
   WorkoutSet,
 } from "./types"
+import { createSyncOutboxMiddleware, type SyncQueueEntry } from "./syncOutbox"
 
 /**
  * Dexie database. Only `src/repo/*` may import this. Components never do.
@@ -32,6 +33,8 @@ export class SystemDB extends Dexie {
   vitals!: EntityTable<Vitals, "id">
   achievements!: EntityTable<Achievement, "id">
   settings!: EntityTable<Settings, "id">
+  /** Pending cloud pushes. Populated automatically by sync-outbox middleware below. */
+  syncQueue!: EntityTable<SyncQueueEntry, "key">
 
   constructor(name = "the-system") {
     super(name)
@@ -48,6 +51,20 @@ export class SystemDB extends Dexie {
       achievements: "id, &code, deleted",
       settings: "id",
     })
+    // Additive: existing installs upgrade in place, no data loss.
+    this.version(2).stores({ syncQueue: "key, table" })
+
+    // Every write to a syncable table drops a "table:id" marker here. The
+    // sync engine (added once cloud credentials exist) drains this queue;
+    // until then it just grows harmlessly unread.
+    this.use(
+      createSyncOutboxMiddleware((table, ids) => {
+        const now = new Date().toISOString()
+        void this.table("syncQueue").bulkPut(
+          ids.map((id) => ({ key: `${table}:${id}`, table, recordId: id, queuedAt: now })),
+        )
+      }),
+    )
   }
 }
 
