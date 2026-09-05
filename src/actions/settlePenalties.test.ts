@@ -79,7 +79,7 @@ describe("settlePenalties", () => {
     await db.completions.toCollection().modify({ date: addDays(today, -1) })
 
     const r = await settlePenalties()
-    expect(r?.misses.map((m) => m.title).sort()).toEqual(["10 km run", "Read 30 minutes"])
+    expect(r?.misses.map((m) => m.title).sort()).toEqual(["5 km run", "Read 30 minutes"])
     expect(r?.hpLost).toBe(PENALTY_HP * 2)
     expect(r?.hpRecovered).toBe(10)
     expect((await questRepo.get(target.id)).streak).toBe(1)

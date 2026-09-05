@@ -60,7 +60,7 @@ export function makeStarterQuests(now: string): Quest[] {
   }
   return [
     { ...stamp(now), ...base, title: "100 push-ups", difficulty: "C", stat: "str" },
-    { ...stamp(now), ...base, title: "10 km run", difficulty: "B", stat: "agi" },
+    { ...stamp(now), ...base, title: "5 km run", difficulty: "B", stat: "agi" },
     { ...stamp(now), ...base, title: "Read 30 minutes", difficulty: "D", stat: "int" },
   ]
 }
