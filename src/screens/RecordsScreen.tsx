@@ -1,3 +1,4 @@
+import { BackupPanel } from "../components/BackupPanel"
 import { DungeonList } from "../components/DungeonList"
 import { Heatmap } from "../components/Heatmap"
 import { WeeklyChart } from "../components/WeeklyChart"
@@ -97,6 +98,8 @@ export function RecordsScreen() {
           })}
         </ul>
       </section>
+
+      <BackupPanel />
     </div>
   )
 }

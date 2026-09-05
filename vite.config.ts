@@ -50,7 +50,8 @@ export default defineConfig({
           },
         ],
       },
-      devOptions: { enabled: false },
+      // The virtual register module must resolve in dev too, or the app fails to load.
+      devOptions: { enabled: true, type: "module", navigateFallback: "index.html", suppressWarnings: true },
     }),
   ],
   test: {
