@@ -65,12 +65,13 @@ export function makeStarterQuests(now: string): Quest[] {
 }
 
 export async function seedIfEmpty(db: SystemDB, today: string, now: string): Promise<boolean> {
-  const existing = await db.hunter.count()
-  if (existing > 0) return false
-  await db.transaction("rw", [db.hunter, db.settings, db.quests], async () => {
+  // Count inside the transaction so two concurrent callers (React StrictMode
+  // runs effects twice in dev) cannot both see an empty store.
+  return db.transaction("rw", [db.hunter, db.settings, db.quests], async () => {
+    if ((await db.hunter.count()) > 0) return false
     await db.hunter.add(makeHunter(today, now))
     await db.settings.put(makeSettings(now))
     await db.quests.bulkAdd(makeStarterQuests(now))
+    return true
   })
-  return true
 }

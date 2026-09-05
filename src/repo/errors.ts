@@ -1,4 +1,11 @@
-export type RepoErrorCode = "daily-cap" | "task-cap" | "not-found" | "recovery-locked" | "no-stat-points"
+export type RepoErrorCode =
+  | "daily-cap"
+  | "task-cap"
+  | "not-found"
+  | "recovery-locked"
+  | "no-stat-points"
+  | "already-done"
+  | "inactive"
 
 /** Thrown by the repo layer; surfaced to the user as a UI error. */
 export class RepoError extends Error {

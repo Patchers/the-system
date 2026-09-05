@@ -2,10 +2,12 @@ import { useEffect, useState } from "react"
 import { runRankAssessment } from "./actions/promote"
 import { SystemPanel } from "./components/SystemPanel"
 import { TabBar, type Tab } from "./components/TabBar"
+import { Toast } from "./components/Toast"
 import { bootstrap } from "./repo/bootstrap"
 import { hunterRepo } from "./repo/hunterRepo"
 import { useLive } from "./repo/useLive"
 import { PendingScreen } from "./screens/PendingScreen"
+import { QuestsScreen } from "./screens/QuestsScreen"
 import { StatusScreen } from "./screens/StatusScreen"
 import { usePanelStore } from "./store/panelStore"
 
@@ -45,11 +47,14 @@ export default function App() {
           <p className="font-heading tracking-widest opacity-60">CONNECTING TO THE SYSTEM…</p>
         ) : tab === "STATUS" ? (
           <StatusScreen />
+        ) : tab === "QUESTS" ? (
+          <QuestsScreen />
         ) : (
           <PendingScreen name={tab} />
         )}
       </main>
       <TabBar active={tab} onChange={setTab} />
+      <Toast />
       <SystemPanel />
     </>
   )

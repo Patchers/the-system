@@ -53,3 +53,11 @@ describe("gatherRankEvidence", () => {
     })
   })
 })
+
+describe("bootstrap concurrency", () => {
+  it("seeds exactly once when called twice at the same time", async () => {
+    const [a, b] = await Promise.all([bootstrap(), bootstrap()])
+    expect([a.seeded, b.seeded].sort()).toEqual([false, true])
+    expect(await questRepo.listActive()).toHaveLength(3)
+  })
+})
