@@ -41,7 +41,7 @@ export const LEVEL_UP_MAX_HP = 10
 export const STARTING_LEVEL = 1
 export const STARTING_MAX_HP = 100
 export const STARTING_RANK: Rank = "E"
-export const STARTING_TITLE = "Unranked"
+export const STARTING_TITLE = "Unranked" // = RANK_TITLES.E
 export const STAT_KEYS: readonly StatKey[] = ["str", "agi", "vit", "int", "per"] as const
 
 /* ---------- Anti-farm ---------- */
@@ -98,3 +98,13 @@ export const DEFAULT_SOUND_ENABLED = true
 /* ---------- Nutrition ---------- */
 /** "under": goal met when logged calories are > 0 and <= goal. "over": met when >= goal. */
 export const CALORIE_GOAL_MODE: "under" | "over" = "under"
+
+/* ---------- Titles ---------- */
+export const RANK_TITLES: Record<Rank, string> = {
+  E: "Unranked",
+  D: "Awakened",
+  C: "Hunter",
+  B: "Elite Hunter",
+  A: "National-Level Hunter",
+  S: "Monarch",
+}

@@ -52,7 +52,7 @@ describe("achievementRepo", () => {
 })
 
 describe("settingsRepo", () => {
-  it("lazily creates the singleton with defaults and patches it", async () => {
+  it("returns defaults before seeding and persists patches", async () => {
     const s = await settingsRepo.get()
     expect(s).toMatchObject({ id: "singleton", penaltyEnabled: true, dayRolloverHour: 4 })
     const next = await settingsRepo.update({ calorieGoal: 1800 })

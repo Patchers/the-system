@@ -7,12 +7,9 @@ import { nowIso } from "../lib/date"
 export type SettingsPatch = Partial<Omit<Settings, "id" | "createdAt" | "updatedAt" | "deleted">>
 
 export const settingsRepo = {
+  /** Read-only, so it is safe inside live queries. Falls back to defaults until the seed lands. */
   async get(): Promise<Settings> {
-    const existing = await db.settings.get("singleton")
-    if (existing) return existing
-    const fresh = makeSettings(nowIso())
-    await db.settings.put(fresh)
-    return fresh
+    return (await db.settings.get("singleton")) ?? makeSettings(nowIso())
   },
 
   async update(patch: SettingsPatch): Promise<Settings> {

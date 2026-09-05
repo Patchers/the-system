@@ -81,3 +81,29 @@ button, [role="button"] {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* SystemPanel reveal: scale + fade; reduced motion = fade only */
+@keyframes sys-in {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes sys-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.panel-enter {
+  animation: sys-in 220ms ease-out both;
+}
+.tone-danger { --border: var(--danger); --glow: var(--danger); --accent: var(--danger); }
+.tone-success { --border: var(--xp); --glow: var(--xp); }
+.caret {
+  animation: sys-blink 700ms steps(1) infinite;
+}
+@keyframes sys-blink {
+  50% { opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .panel-enter { animation: sys-fade 200ms ease-out both; }
+  .caret { animation: none; }
+  * { transition-duration: 0.01ms !important; }
+}
