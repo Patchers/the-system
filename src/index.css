@@ -1,0 +1,83 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Rajdhani:wght@500;600;700&family=Orbitron:wght@500;700&display=swap");
+@import "tailwindcss";
+
+/* ---- THE SYSTEM theme tokens ---- */
+:root {
+  --bg: #05070d;
+  --panel: rgba(16, 32, 58, 0.72);
+  --border: #2f7fd4;
+  --glow: #4da8ff;
+  --accent: #7fd4ff;
+  --xp: #00e5ff;
+  --danger: #ff3b52;
+
+  --font-heading: "Rajdhani", "Orbitron", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, sans-serif;
+
+  --tap-min: 56px;
+}
+
+@theme {
+  --color-bg: var(--bg);
+  --color-panel: var(--panel);
+  --color-border: var(--border);
+  --color-glow: var(--glow);
+  --color-accent: var(--accent);
+  --color-xp: var(--xp);
+  --color-danger: var(--danger);
+  --font-heading: "Rajdhani", "Orbitron", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, sans-serif;
+}
+
+html {
+  font-size: 18px;
+  background: var(--bg);
+  color: var(--accent);
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-heading);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* System panel chrome: 1px border, glow, blur, notched corners */
+.sys-panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  box-shadow: 0 0 24px rgba(77, 168, 255, 0.35);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  clip-path: polygon(
+    16px 0, 100% 0,
+    100% calc(100% - 16px), calc(100% - 16px) 100%,
+    0 100%, 0 16px
+  );
+}
+
+/* Recovery mode swaps the accent for danger */
+.recovery {
+  --border: var(--danger);
+  --glow: var(--danger);
+  --accent: var(--danger);
+}
+
+button, [role="button"] {
+  min-width: var(--tap-min);
+  min-height: var(--tap-min);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
