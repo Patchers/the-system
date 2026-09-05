@@ -29,6 +29,8 @@ export interface Hunter extends BaseRecord {
   vit: number
   int: number
   per: number
+  /** Raw training units not yet converted to stat points. */
+  statUnits: Record<StatKey, number>
   title: string
   recoveryMode: boolean
   /** Last app-day key the hunter opened the app. Drives the penalty engine. */

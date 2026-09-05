@@ -37,6 +37,7 @@ export function makeHunter(today: string, now: string): Hunter {
     vit: 0,
     int: 0,
     per: 0,
+    statUnits: { str: 0, agi: 0, vit: 0, int: 0, per: 0 },
     title: STARTING_TITLE,
     recoveryMode: false,
     lastSeenDate: today,

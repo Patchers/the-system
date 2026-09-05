@@ -27,6 +27,7 @@ const hunter = (over: Partial<Hunter> = {}): Hunter => ({
   vit: 0,
   int: 0,
   per: 0,
+  statUnits: { str: 0, agi: 0, vit: 0, int: 0, per: 0 },
   title: "Unranked",
   recoveryMode: false,
   lastSeenDate: "2026-09-05",
