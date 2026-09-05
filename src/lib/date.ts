@@ -5,7 +5,9 @@
  * Every date key in the app comes from here. Never slice an ISO string elsewhere.
  */
 
-export const DAY_ROLLOVER_HOUR = 4
+import { DAY_ROLLOVER_HOUR } from "../engine/constants"
+
+export { DAY_ROLLOVER_HOUR }
 
 const pad = (n: number) => String(n).padStart(2, "0")
 

@@ -1,0 +1,82 @@
+/**
+ * First-run seed. The only place placeholder data is allowed.
+ * Idempotent: does nothing if a hunter already exists.
+ */
+import type { SystemDB } from "./schema"
+import type { BaseRecord, Hunter, Quest, Settings } from "./types"
+import {
+  DAY_ROLLOVER_HOUR,
+  DEFAULT_CALORIE_GOAL,
+  DEFAULT_PENALTY_ENABLED,
+  DEFAULT_SOUND_ENABLED,
+  STARTING_LEVEL,
+  STARTING_MAX_HP,
+  STARTING_RANK,
+  STARTING_TITLE,
+} from "../engine/constants"
+
+export function newId(): string {
+  return crypto.randomUUID()
+}
+
+export function stamp(now: string, id = newId()): BaseRecord {
+  return { id, createdAt: now, updatedAt: now, deleted: 0 }
+}
+
+export function makeHunter(today: string, now: string): Hunter {
+  return {
+    ...stamp(now),
+    level: STARTING_LEVEL,
+    xp: 0,
+    hp: STARTING_MAX_HP,
+    maxHp: STARTING_MAX_HP,
+    rank: STARTING_RANK,
+    statPoints: 0,
+    str: 0,
+    agi: 0,
+    vit: 0,
+    int: 0,
+    per: 0,
+    title: STARTING_TITLE,
+    recoveryMode: false,
+    lastSeenDate: today,
+  }
+}
+
+export function makeSettings(now: string): Settings {
+  return {
+    ...stamp(now, "singleton"),
+    id: "singleton",
+    calorieGoal: DEFAULT_CALORIE_GOAL,
+    penaltyEnabled: DEFAULT_PENALTY_ENABLED,
+    soundEnabled: DEFAULT_SOUND_ENABLED,
+    dayRolloverHour: DAY_ROLLOVER_HOUR,
+  }
+}
+
+/** The three starter dailies. Fills the daily cap so the hunter edits, not adds. */
+export function makeStarterQuests(now: string): Quest[] {
+  const base = {
+    type: "daily" as const,
+    streak: 0,
+    bestStreak: 0,
+    lastCompletedOn: null,
+    active: true,
+  }
+  return [
+    { ...stamp(now), ...base, title: "100 push-ups", difficulty: "C", stat: "str" },
+    { ...stamp(now), ...base, title: "10 km run", difficulty: "B", stat: "agi" },
+    { ...stamp(now), ...base, title: "Read 30 minutes", difficulty: "D", stat: "int" },
+  ]
+}
+
+export async function seedIfEmpty(db: SystemDB, today: string, now: string): Promise<boolean> {
+  const existing = await db.hunter.count()
+  if (existing > 0) return false
+  await db.transaction("rw", [db.hunter, db.settings, db.quests], async () => {
+    await db.hunter.add(makeHunter(today, now))
+    await db.settings.put(makeSettings(now))
+    await db.quests.bulkAdd(makeStarterQuests(now))
+  })
+  return true
+}
