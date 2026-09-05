@@ -1,4 +1,5 @@
 import { BackupPanel } from "../components/BackupPanel"
+import { CloudPanel } from "../components/CloudPanel"
 import { DungeonList } from "../components/DungeonList"
 import { Heatmap } from "../components/Heatmap"
 import { WeeklyChart } from "../components/WeeklyChart"
@@ -99,6 +100,7 @@ export function RecordsScreen() {
         </ul>
       </section>
 
+      <CloudPanel />
       <BackupPanel />
     </div>
   )

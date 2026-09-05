@@ -6,6 +6,7 @@ import { SystemPanel } from "./components/SystemPanel"
 import { TabBar, type Tab } from "./components/TabBar"
 import { Toast } from "./components/Toast"
 import { UpdatePrompt } from "./components/UpdatePrompt"
+import { watchAuth } from "./lib/authWatch"
 import { bootstrap } from "./repo/bootstrap"
 import { hunterRepo } from "./repo/hunterRepo"
 import { useLive } from "./repo/useLive"
@@ -13,7 +14,9 @@ import { PendingScreen } from "./screens/PendingScreen"
 import { QuestsScreen } from "./screens/QuestsScreen"
 import { TrainingScreen } from "./screens/TrainingScreen"
 import { VitalsScreen } from "./screens/VitalsScreen"
+import { useAuthStore } from "./store/authStore"
 import { usePanelStore } from "./store/panelStore"
+import { startSync, stopSync } from "./sync/engine"
 
 const RecordsScreen = lazy(() => import("./screens/RecordsScreen").then((m) => ({ default: m.RecordsScreen })))
 const StatusScreen = lazy(() => import("./screens/StatusScreen").then((m) => ({ default: m.StatusScreen })))
@@ -64,6 +67,20 @@ export default function App() {
   useEffect(() => {
     document.documentElement.classList.toggle("recovery", Boolean(hunter?.recoveryMode))
   }, [hunter?.recoveryMode])
+
+  useEffect(() => watchAuth(), [])
+
+  const authStatus = useAuthStore((s) => s.status)
+  const authUserId = useAuthStore((s) => s.user?.id)
+
+  useEffect(() => {
+    if (authStatus === "signedIn" && authUserId) {
+      void startSync(authUserId)
+    } else {
+      stopSync()
+    }
+    return stopSync
+  }, [authStatus, authUserId])
 
   return (
     <>
