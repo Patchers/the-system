@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import { runRankAssessment } from "./actions/promote"
+import { settlePenalties } from "./actions/settlePenalties"
 import { SystemPanel } from "./components/SystemPanel"
 import { TabBar, type Tab } from "./components/TabBar"
 import { Toast } from "./components/Toast"
@@ -28,6 +29,7 @@ export default function App() {
           ping: true,
         })
       }
+      await settlePenalties()
       await runRankAssessment()
       if (!cancelled) setReady(true)
     })()
@@ -35,6 +37,20 @@ export default function App() {
       cancelled = true
     }
   }, [])
+
+  // Re-settle when the app comes back to the foreground or the day rolls over while open.
+  useEffect(() => {
+    if (!ready) return
+    const onVisible = () => {
+      if (document.visibilityState === "visible") void settlePenalties()
+    }
+    document.addEventListener("visibilitychange", onVisible)
+    const tick = setInterval(() => void settlePenalties(), 60_000)
+    return () => {
+      document.removeEventListener("visibilitychange", onVisible)
+      clearInterval(tick)
+    }
+  }, [ready])
 
   useEffect(() => {
     document.documentElement.classList.toggle("recovery", Boolean(hunter?.recoveryMode))
