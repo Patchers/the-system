@@ -1,20 +1,22 @@
-import { useEffect, useState } from "react"
+import { Suspense, lazy, useEffect, useState } from "react"
 import { checkAchievements } from "./actions/checkAchievements"
 import { runRankAssessment } from "./actions/promote"
 import { settlePenalties } from "./actions/settlePenalties"
 import { SystemPanel } from "./components/SystemPanel"
 import { TabBar, type Tab } from "./components/TabBar"
 import { Toast } from "./components/Toast"
+import { UpdatePrompt } from "./components/UpdatePrompt"
 import { bootstrap } from "./repo/bootstrap"
 import { hunterRepo } from "./repo/hunterRepo"
 import { useLive } from "./repo/useLive"
 import { PendingScreen } from "./screens/PendingScreen"
 import { QuestsScreen } from "./screens/QuestsScreen"
-import { RecordsScreen } from "./screens/RecordsScreen"
-import { StatusScreen } from "./screens/StatusScreen"
 import { TrainingScreen } from "./screens/TrainingScreen"
 import { VitalsScreen } from "./screens/VitalsScreen"
 import { usePanelStore } from "./store/panelStore"
+
+const RecordsScreen = lazy(() => import("./screens/RecordsScreen").then((m) => ({ default: m.RecordsScreen })))
+const StatusScreen = lazy(() => import("./screens/StatusScreen").then((m) => ({ default: m.StatusScreen })))
 
 export default function App() {
   const [ready, setReady] = useState(false)
@@ -64,6 +66,7 @@ export default function App() {
   return (
     <>
       <main className="min-h-dvh p-4 pb-24 max-w-lg mx-auto">
+        <Suspense fallback={<p className="font-heading tracking-widest opacity-60">LOADING…</p>}>
         {!ready ? (
           <p className="font-heading tracking-widest opacity-60">CONNECTING TO THE SYSTEM…</p>
         ) : tab === "STATUS" ? (
@@ -79,9 +82,11 @@ export default function App() {
         ) : (
           <PendingScreen name={tab} />
         )}
+        </Suspense>
       </main>
       <TabBar active={tab} onChange={setTab} />
       <Toast />
+      <UpdatePrompt />
       <SystemPanel />
     </>
   )
