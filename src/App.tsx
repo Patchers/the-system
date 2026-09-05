@@ -11,6 +11,7 @@ import { PendingScreen } from "./screens/PendingScreen"
 import { QuestsScreen } from "./screens/QuestsScreen"
 import { StatusScreen } from "./screens/StatusScreen"
 import { TrainingScreen } from "./screens/TrainingScreen"
+import { VitalsScreen } from "./screens/VitalsScreen"
 import { usePanelStore } from "./store/panelStore"
 
 export default function App() {
@@ -68,6 +69,8 @@ export default function App() {
           <QuestsScreen />
         ) : tab === "TRAINING" ? (
           <TrainingScreen />
+        ) : tab === "VITALS" ? (
+          <VitalsScreen />
         ) : (
           <PendingScreen name={tab} />
         )}
