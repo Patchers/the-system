@@ -24,10 +24,12 @@ export default function App() {
   const hunter = useLive(() => (ready ? hunterRepo.get() : undefined), [ready])
 
   useEffect(() => {
+    // The panel queue is global, so events are pushed regardless of whether this
+    // particular effect run was cancelled. StrictMode mounts twice in dev and
+    // only the run that actually seeded reports seeded: true.
     let cancelled = false
     ;(async () => {
       const { seeded } = await bootstrap()
-      if (cancelled) return
       if (seeded) {
         usePanelStore.getState().push({
           title: "SYSTEM INITIALISED",
