@@ -130,26 +130,26 @@ describe("applyXp", () => {
 
 describe("awardCompletion", () => {
   it("adds XP and difficulty stat points", () => {
-    const r = awardCompletion(hunter(), { difficulty: "B", streak: 0 })
-    // 100 * 1.1 = 110 -> level 2 with 10 left; +3 level-up +2 difficulty
-    expect(r.hunter).toMatchObject({ level: 2, xp: 10, statPoints: 5 })
+    const r = awardCompletion(hunter(), { difficulty: "B", streak: 0, stat: "str" })
+    // 100 * 1.1 = 110 -> level 2 with 10 left; +3 free points from level-up, +2 STR
+    expect(r.hunter).toMatchObject({ level: 2, xp: 10, statPoints: 3, str: 2 })
     expect(r.statPointsAwarded).toBe(2)
     expect(r.levelsGained).toEqual([2])
   })
   it("gives nothing for a fully decayed habit", () => {
-    const r = awardCompletion(hunter(), { difficulty: "S", streak: 0, habitIndex: 3 })
+    const r = awardCompletion(hunter(), { difficulty: "S", streak: 0, habitIndex: 3, stat: "vit" })
     expect(r.xpApplied).toBe(0)
     expect(r.statPointsAwarded).toBe(0)
-    expect(r.hunter.statPoints).toBe(0)
+    expect(r.hunter.vit).toBe(0)
   })
   it("locks XP and stat points in recovery mode", () => {
-    const r = awardCompletion(hunter({ recoveryMode: true }), { difficulty: "S", streak: 30 })
+    const r = awardCompletion(hunter({ recoveryMode: true }), { difficulty: "S", streak: 30, stat: "agi" })
     expect(r.xpApplied).toBe(0)
     expect(r.statPointsAwarded).toBe(0)
   })
   it("awards normally once recovery is cleared", () => {
     const h = clearRecovery(hunter({ recoveryMode: true }))
     expect(h.recoveryMode).toBe(false)
-    expect(awardCompletion(h, { difficulty: "E", streak: 0 }).xpApplied).toBe(11)
+    expect(awardCompletion(h, { difficulty: "E", streak: 0, stat: "per" }).xpApplied).toBe(11)
   })
 })

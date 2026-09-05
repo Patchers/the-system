@@ -2,7 +2,7 @@
  * XP, level-up and completion rewards. Pure functions over plain objects.
  * No Date, no Dexie, no React. The repo layer stamps `updatedAt`.
  */
-import type { Difficulty, Hunter } from "../db/types"
+import type { Difficulty, Hunter, StatKey } from "../db/types"
 import {
   BASE_XP,
   HABIT_DECAY,
@@ -91,15 +91,21 @@ export function applyXp(hunter: Hunter, amount: number): XpResult {
 }
 
 export interface AwardResult extends XpResult {
+  /** Points added directly to the quest's tagged stat. */
   statPointsAwarded: number
 }
 
+export interface AwardInput extends Omit<CompletionInput, "level"> {
+  /** The stat tagged on the quest; difficulty points land here. */
+  stat: StatKey
+}
+
 /**
- * Full reward for one completion: XP (with level-ups) plus difficulty stat points.
- * In recovery mode both are blocked. The caller decides whether to clear
- * recovery mode before or after calling this.
+ * Full reward for one completion: XP (with level-ups) plus difficulty stat
+ * points applied straight to the quest's tagged stat. In recovery mode both
+ * are blocked. The caller decides whether to clear recovery mode first.
  */
-export function awardCompletion(hunter: Hunter, input: Omit<CompletionInput, "level">): AwardResult {
+export function awardCompletion(hunter: Hunter, input: AwardInput): AwardResult {
   if (hunter.recoveryMode) {
     return { hunter, levelsGained: [], xpApplied: 0, statPointsAwarded: 0 }
   }
@@ -109,7 +115,7 @@ export function awardCompletion(hunter: Hunter, input: Omit<CompletionInput, "le
   const statPointsAwarded = decayed ? 0 : statPointsFor(input.difficulty)
   return {
     ...result,
-    hunter: { ...result.hunter, statPoints: result.hunter.statPoints + statPointsAwarded },
+    hunter: { ...result.hunter, [input.stat]: result.hunter[input.stat] + statPointsAwarded },
     statPointsAwarded,
   }
 }
