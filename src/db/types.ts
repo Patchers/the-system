@@ -33,6 +33,8 @@ export interface Hunter extends BaseRecord {
   statUnits: Record<StatKey, number>
   title: string
   recoveryMode: boolean
+  /** Times the hunter has climbed out of recovery mode. */
+  recoveries: number
   /** Last app-day key the hunter opened the app. Drives the penalty engine. */
   lastSeenDate: string
 }

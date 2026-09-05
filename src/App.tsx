@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { checkAchievements } from "./actions/checkAchievements"
 import { runRankAssessment } from "./actions/promote"
 import { settlePenalties } from "./actions/settlePenalties"
 import { SystemPanel } from "./components/SystemPanel"
@@ -9,6 +10,7 @@ import { hunterRepo } from "./repo/hunterRepo"
 import { useLive } from "./repo/useLive"
 import { PendingScreen } from "./screens/PendingScreen"
 import { QuestsScreen } from "./screens/QuestsScreen"
+import { RecordsScreen } from "./screens/RecordsScreen"
 import { StatusScreen } from "./screens/StatusScreen"
 import { TrainingScreen } from "./screens/TrainingScreen"
 import { VitalsScreen } from "./screens/VitalsScreen"
@@ -33,6 +35,7 @@ export default function App() {
       }
       await settlePenalties()
       await runRankAssessment()
+      await checkAchievements()
       if (!cancelled) setReady(true)
     })()
     return () => {
@@ -71,6 +74,8 @@ export default function App() {
           <TrainingScreen />
         ) : tab === "VITALS" ? (
           <VitalsScreen />
+        ) : tab === "RECORDS" ? (
+          <RecordsScreen />
         ) : (
           <PendingScreen name={tab} />
         )}

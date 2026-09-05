@@ -61,7 +61,8 @@ describe("completeQuest", () => {
     const r = await completeQuest(q.id)
     expect(r.levelsGained).toEqual([2])
     const titles = usePanelStore.getState().queue.map((p) => p.title)
-    expect(titles).toEqual(["LEVEL UP"])
+    expect(titles.filter((t) => t === "LEVEL UP")).toEqual(["LEVEL UP"])
+    expect(titles.indexOf("LEVEL UP")).toBe(0)
     expect((await hunterRepo.get()).level).toBe(2)
   })
 

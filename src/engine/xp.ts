@@ -122,5 +122,5 @@ export function awardCompletion(hunter: Hunter, input: AwardInput): AwardResult 
 
 /** Exit recovery mode. Called on the next completion of any kind. */
 export function clearRecovery(hunter: Hunter): Hunter {
-  return hunter.recoveryMode ? { ...hunter, recoveryMode: false } : hunter
+  return hunter.recoveryMode ? { ...hunter, recoveryMode: false, recoveries: hunter.recoveries + 1 } : hunter
 }

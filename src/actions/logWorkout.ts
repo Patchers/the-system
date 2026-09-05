@@ -5,6 +5,7 @@ import { hunterRepo } from "../repo/hunterRepo"
 import { runInTransaction } from "../repo/transaction"
 import { workoutRepo, type NewSet, type NewWorkout } from "../repo/workoutRepo"
 import { usePanelStore } from "../store/panelStore"
+import { checkAchievements } from "./checkAchievements"
 
 export interface LogWorkoutResult {
   workout: Workout
@@ -27,5 +28,6 @@ export async function logWorkout(input: NewWorkout, sets: readonly NewSet[]): Pr
   if (result.recovered) {
     usePanelStore.getState().push({ title: "RECOVERY COMPLETE", lines: ["Vital signs restored.", "XP gain re-enabled."], tone: "success" })
   }
+  await checkAchievements()
   return result
 }

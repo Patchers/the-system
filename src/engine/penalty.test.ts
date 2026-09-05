@@ -22,6 +22,7 @@ const hunter = (over: Partial<Hunter> = {}): Hunter => ({
   statUnits: { str: 0, agi: 0, vit: 0, int: 0, per: 0 },
   title: "",
   recoveryMode: false,
+  recoveries: 0,
   lastSeenDate: "2026-09-01",
   ...over,
 })

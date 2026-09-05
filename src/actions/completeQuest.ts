@@ -9,6 +9,7 @@ import { hunterRepo } from "../repo/hunterRepo"
 import { questRepo } from "../repo/questRepo"
 import { runInTransaction } from "../repo/transaction"
 import { usePanelStore, type PanelInput } from "../store/panelStore"
+import { checkAchievements } from "./checkAchievements"
 import { runRankAssessment } from "./promote"
 
 export interface CompleteResult {
@@ -79,5 +80,6 @@ export async function completeQuest(questId: string): Promise<CompleteResult> {
   }
   if (panels.length) usePanelStore.getState().pushMany(panels)
   await runRankAssessment()
+  await checkAchievements()
   return result
 }
