@@ -10,6 +10,7 @@ import { useLive } from "./repo/useLive"
 import { PendingScreen } from "./screens/PendingScreen"
 import { QuestsScreen } from "./screens/QuestsScreen"
 import { StatusScreen } from "./screens/StatusScreen"
+import { TrainingScreen } from "./screens/TrainingScreen"
 import { usePanelStore } from "./store/panelStore"
 
 export default function App() {
@@ -65,6 +66,8 @@ export default function App() {
           <StatusScreen />
         ) : tab === "QUESTS" ? (
           <QuestsScreen />
+        ) : tab === "TRAINING" ? (
+          <TrainingScreen />
         ) : (
           <PendingScreen name={tab} />
         )}
