@@ -31,7 +31,7 @@ export function DungeonList({ dungeons }: { dungeons: Dungeon[] }) {
 
   return (
     <div className="flex flex-col gap-3">
-      {dungeons.length === 0 && !adding && <p className="opacity-70 px-1">No gates opened.</p>}
+      {dungeons.length === 0 && !adding && <p className="sys-empty">No gates opened</p>}
       {dungeons.map((d) => (
         <article key={d.id} className="sys-panel p-4 flex flex-col gap-2">
           <header className="flex justify-between items-baseline gap-2">
@@ -80,7 +80,7 @@ export function DungeonList({ dungeons }: { dungeons: Dungeon[] }) {
           </div>
         </div>
       ) : (
-        <button type="button" onClick={() => setAdding(true)} className="sys-panel font-heading tracking-widest text-[var(--xp)]">
+        <button type="button" onClick={() => setAdding(true)} className="sys-panel font-heading tracking-widest text-[var(--xp)] flex items-center justify-center gap-2">
           + OPEN A GATE
         </button>
       )}

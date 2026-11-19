@@ -1,7 +1,8 @@
-import { useRef, useState, type PointerEvent } from "react"
+import { useRef, useState, type CSSProperties, type PointerEvent } from "react"
 import type { Quest } from "../db/types"
 import { HABIT_DECAY } from "../engine/constants"
 import { habitDecay } from "../engine/xp"
+import { rankColor } from "../lib/rankColor"
 
 const SWIPE_COMPLETE_PX = 80
 const SWIPE_MAX_PX = 140
@@ -75,30 +76,31 @@ export function QuestRow({ quest, done, countToday, onComplete, onEdit }: QuestR
     >
       <div
         aria-hidden
-        className="absolute inset-y-0 left-0 flex items-center pl-4 font-heading tracking-widest text-[var(--xp)]"
+        className="absolute inset-y-0 left-0 flex items-center pl-4 font-display font-bold text-sm tracking-widest text-[var(--xp)]"
         style={{ opacity: Math.min(1, dx / SWIPE_COMPLETE_PX) }}
       >
         COMPLETE
       </div>
       <div
-        className={`sys-panel flex items-center gap-3 p-3 pl-4 transition-transform ${done ? "opacity-50" : ""}`}
+        className={`sys-row flex items-center gap-3 p-3 transition-transform ${done ? "opacity-55" : ""}`}
         style={{ transform: `translateX(${dx}px)`, transitionDuration: dx ? "0ms" : "150ms" }}
       >
         <span
-          className="font-heading text-xl w-8 h-8 flex items-center justify-center border border-[var(--border)] shrink-0"
+          className="rank-tile text-lg"
+          style={{ "--rc": rankColor(quest.difficulty), width: 44, height: 44 } as CSSProperties}
           aria-label={`Difficulty ${quest.difficulty}`}
         >
           {quest.difficulty}
         </span>
         <div className="flex-1 min-w-0">
           <p className={`truncate ${done ? "line-through" : ""}`}>{quest.title}</p>
-          <p className="text-xs opacity-70 font-heading tracking-widest">
-            {quest.stat.toUpperCase()}
-            {quest.type !== "task" && quest.streak > 0 && ` · STREAK ${quest.streak}`}
-            {quest.type === "habit" && countToday > 0 && ` · TODAY ×${countToday}`}
-            {quest.type === "habit" && !habitExhausted && ` · NEXT ${nextHabitPct}%`}
-            {habitExhausted && " · NO MORE XP TODAY"}
-            {quest.type === "task" && quest.dueAt && ` · DUE ${quest.dueAt}`}
+          <p className="flex flex-wrap items-center gap-x-1.5 gap-y-1 mt-1">
+            <span className="chip">{quest.stat.toUpperCase()}</span>
+            {quest.type !== "task" && quest.streak > 0 && <span className="chip chip-hot">STREAK {quest.streak}</span>}
+            {quest.type === "habit" && countToday > 0 && <span className="chip">TODAY ×{countToday}</span>}
+            {quest.type === "habit" && !habitExhausted && <span className="chip">NEXT {nextHabitPct}%</span>}
+            {habitExhausted && <span className="chip">NO MORE XP TODAY</span>}
+            {quest.type === "task" && quest.dueAt && <span className="chip">DUE {quest.dueAt}</span>}
           </p>
         </div>
         <button
@@ -107,7 +109,7 @@ export function QuestRow({ quest, done, countToday, onComplete, onEdit }: QuestR
           disabled={done}
           aria-label={done ? `${quest.title} completed` : `Complete ${quest.title}`}
           className={`shrink-0 font-heading text-2xl border ${
-            done ? "border-[var(--xp)] text-[var(--xp)]" : "border-[var(--border)] active:bg-[var(--glow)]/30"
+            done ? "border-[var(--xp)] bg-[var(--xp)] text-[var(--bg)] opacity-100" : "border-[var(--border)]"
           }`}
         >
           ✓

@@ -24,7 +24,7 @@ export function Countdown({ onRollover }: { onRollover?: () => void }) {
   }, [onRollover])
 
   return (
-    <span className="font-heading tabular-nums tracking-widest" aria-label="Time until reset">
+    <span className="tabular-nums tracking-widest" aria-label="Time until reset">
       {format(ms)}
     </span>
   )

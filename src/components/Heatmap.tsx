@@ -6,6 +6,7 @@ const DAYS = ["S", "M", "T", "W", "T", "F", "S"]
 /** Calendar grid of completion activity. Columns are weeks, rows are weekdays. */
 export function Heatmap({ cells }: { cells: (HeatCell | null)[] }) {
   return (
+    <div className="flex flex-col gap-3">
     <div className="flex gap-2 overflow-x-auto pb-1">
       <div className="grid grid-rows-7 gap-1 shrink-0" aria-hidden>
         {DAYS.map((d, i) => (
@@ -32,6 +33,14 @@ export function Heatmap({ cells }: { cells: (HeatCell | null)[] }) {
           ),
         )}
       </div>
+    </div>
+    <div className="flex items-center justify-end gap-1.5" aria-hidden>
+      <span className="eyebrow">Less</span>
+      {SHADES.map((c) => (
+        <span key={c} className="w-3 h-3" style={{ background: c }} />
+      ))}
+      <span className="eyebrow">More</span>
+    </div>
     </div>
   )
 }

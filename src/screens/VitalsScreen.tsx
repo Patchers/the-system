@@ -1,6 +1,8 @@
 import { useState, type FormEvent } from "react"
+import { Bar } from "../components/Bar"
 import { CalorieRing } from "../components/CalorieRing"
 import { Stepper } from "../components/Stepper"
+import { WATER_TARGET_ML } from "../engine/constants"
 import { todayKey } from "../lib/date"
 import { nutritionRepo } from "../repo/nutritionRepo"
 import { settingsRepo } from "../repo/settingsRepo"
@@ -65,7 +67,7 @@ export function VitalsScreen() {
   const weightValue = weight ?? data.vitals?.weightKg ?? 70
   const sleepValue = sleep ?? data.vitals?.sleepHours ?? 7
   const water = data.vitals?.waterMl ?? 0
-  const chip = "font-heading tracking-widest border border-[var(--border)] active:bg-[var(--glow)]/30"
+  const chip = "font-heading tracking-widest border border-[var(--border)]"
 
   return (
     <div className="flex flex-col gap-5">
@@ -112,7 +114,7 @@ export function VitalsScreen() {
             onChange={(e) => setManual(e.target.value)}
             placeholder="Manual amount"
             aria-label="Manual calories"
-            className="flex-1 min-w-0 bg-black/40 border border-[var(--border)] px-3 min-h-14"
+            className="flex-1 min-w-0 bg-black/40 border border-[var(--border)] px-3 min-h-14 font-display"
           />
           <button type="submit" className={chip + " px-4"}>
             ADD
@@ -140,15 +142,11 @@ export function VitalsScreen() {
         </p>
       </section>
 
-      <section className="sys-panel p-5 flex flex-col gap-3" aria-labelledby="water-heading">
-        <header className="flex justify-between items-baseline">
-          <h2 id="water-heading" className="text-lg">
-            Water
-          </h2>
-          <span className="font-heading text-2xl tabular-nums text-[var(--xp)]">
-            {water} <span className="text-sm opacity-70">ML</span>
-          </span>
-        </header>
+      <section className="sys-panel p-5 flex flex-col gap-4" aria-labelledby="water-heading">
+        <h2 id="water-heading" className="text-lg">
+          Water
+        </h2>
+        <Bar label="HYDRATION" value={water} max={WATER_TARGET_ML} color="var(--glow)" unit="ml" />
         <div className="grid grid-cols-2 gap-2">
           {WATER_ADD.map((n) => (
             <button

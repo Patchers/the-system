@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react"
 import { BackupPanel } from "../components/BackupPanel"
 import { CloudPanel } from "../components/CloudPanel"
 import { DungeonList } from "../components/DungeonList"
@@ -38,24 +39,26 @@ export function RecordsScreen() {
   ]
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-5">
       <section className="sys-panel p-4" aria-labelledby="totals-heading">
-        <h1 id="totals-heading" className="text-xl mb-3">
+        <h1 id="totals-heading" className="text-xl mb-4">
           Records
         </h1>
         <dl className="grid grid-cols-2 gap-3">
           {stats.map((s) => (
-            <div key={s.label}>
-              <dt className="text-xs font-heading tracking-widest opacity-60">{s.label}</dt>
-              <dd className="font-heading text-3xl tabular-nums text-[var(--xp)]">{s.value}</dd>
+            <div key={s.label} className="sys-row p-3 flex flex-col gap-1">
+              <dt className="eyebrow">{s.label}</dt>
+              <dd className="font-display font-bold text-3xl tabular-nums text-[var(--xp)]" style={{ textShadow: "0 0 18px color-mix(in srgb, var(--xp) 45%, transparent)" }}>
+                {s.value}
+              </dd>
             </div>
           ))}
         </dl>
-        <p className="text-xs opacity-50 mt-3">Last {HEATMAP_DAYS} days.</p>
+        <p className="eyebrow mt-3">Last {HEATMAP_DAYS} days</p>
       </section>
 
       <section className="sys-panel p-4" aria-labelledby="chart-heading">
-        <h2 id="chart-heading" className="text-lg mb-2">
+        <h2 id="chart-heading" className="text-lg mb-3">
           XP · last {CHART_DAYS} days
         </h2>
         <WeeklyChart data={dailySeries(data.completions, today, CHART_DAYS)} />
@@ -76,22 +79,31 @@ export function RecordsScreen() {
       </section>
 
       <section className="sys-panel p-4" aria-labelledby="ach-heading">
-        <h2 id="ach-heading" className="text-lg mb-1">
-          Achievements
-        </h2>
-        <p className="text-xs font-heading tracking-widest opacity-60 mb-3">
-          {unlocked.size} / {ACHIEVEMENTS.length} UNLOCKED
-        </p>
-        <ul className="flex flex-col gap-2">
+        <header className="flex items-center justify-between gap-3 mb-3">
+          <h2 id="ach-heading" className="text-lg">
+            Achievements
+          </h2>
+          <span className="chip">
+            {unlocked.size} / {ACHIEVEMENTS.length}
+          </span>
+        </header>
+        <div className="mini mb-4" aria-hidden>
+          <i style={{ width: `${(unlocked.size / ACHIEVEMENTS.length) * 100}%` }} />
+        </div>
+        <ul className="flex flex-col gap-2.5">
           {ACHIEVEMENTS.map((a) => {
             const on = unlocked.has(a.code)
             return (
-              <li key={a.code} className={`flex gap-3 ${on ? "" : "opacity-40"}`}>
-                <span aria-hidden className="font-heading">
+              <li key={a.code} className={`flex gap-3 items-center ${on ? "" : "opacity-45"}`}>
+                <span
+                  aria-hidden
+                  className="rank-tile text-lg"
+                  style={{ "--rc": on ? "var(--rank-s)" : "var(--rank-e)", width: 36, height: 36 } as CSSProperties}
+                >
                   {on ? "★" : "☆"}
                 </span>
-                <span>
-                  <span className={`font-heading tracking-widest ${on ? "text-[var(--xp)]" : ""}`}>{a.name}</span>
+                <span className="min-w-0">
+                  <span className={`block font-heading tracking-widest ${on ? "text-[var(--xp)]" : ""}`}>{a.name}</span>
                   <span className="block text-sm opacity-80">{a.description}</span>
                 </span>
               </li>

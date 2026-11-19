@@ -62,28 +62,54 @@ export function QuestsScreen() {
 
   return (
     <div className="flex flex-col gap-5">
-      <section className="sys-panel p-4 flex flex-col gap-3" aria-labelledby="daily-heading">
-        <header className="flex justify-between items-baseline">
+      <section className="sys-panel p-4 flex flex-col gap-4" aria-labelledby="daily-heading">
+        <header className="flex justify-between items-baseline gap-2">
           <h1 id="daily-heading" className="text-xl">
             Daily Quest
           </h1>
-          <span className="text-sm">
-            <span className="opacity-70">RESET IN </span>
-            <Countdown onRollover={onRollover} />
+          <span className="text-sm whitespace-nowrap">
+            <span className="opacity-60 font-heading tracking-widest text-xs">RESET </span>
+            <span className="font-display font-bold text-[var(--xp)] tabular-nums">
+              <Countdown onRollover={onRollover} />
+            </span>
           </span>
         </header>
-        <p className="text-xs font-heading tracking-widest opacity-70">
-          {dailiesDone} / {dailies.length} COMPLETE · {dailies.length} / {MAX_ACTIVE_DAILY} SLOTS
-        </p>
-        {dailies.length === 0 && <p className="opacity-70">No daily quests. Add up to {MAX_ACTIVE_DAILY}.</p>}
+        <div className="flex flex-col gap-2">
+          <div
+            className="seg"
+            role="progressbar"
+            aria-label="Daily quests complete"
+            aria-valuenow={dailiesDone}
+            aria-valuemin={0}
+            aria-valuemax={dailies.length}
+          >
+            {Array.from({ length: Math.max(dailies.length, 1) }, (_, i) => (
+              <i key={i} className={i < dailiesDone ? "on" : ""} />
+            ))}
+          </div>
+          <p className="flex items-center justify-between eyebrow">
+            <span>
+              {dailiesDone} / {dailies.length} complete
+            </span>
+            <span>
+              {dailies.length} / {MAX_ACTIVE_DAILY} slots
+            </span>
+          </p>
+        </div>
+        {dailies.length === 0 && <p className="sys-empty">No daily quests. Add up to {MAX_ACTIVE_DAILY}.</p>}
         {rows(dailies)}
       </section>
 
       <section className="flex flex-col gap-3" aria-labelledby="tasks-heading">
-        <h2 id="tasks-heading" className="text-lg px-1">
-          Tasks <span className="text-xs opacity-60">{tasks.length} / {MAX_ACTIVE_TASK}</span>
-        </h2>
-        {tasks.length === 0 && <p className="opacity-70 px-1">No open tasks.</p>}
+        <header className="flex justify-between items-baseline px-1">
+          <h2 id="tasks-heading" className="text-lg">
+            Tasks
+          </h2>
+          <span className="chip">
+            {tasks.length} / {MAX_ACTIVE_TASK}
+          </span>
+        </header>
+        {tasks.length === 0 && <p className="sys-empty">No open tasks</p>}
         {rows(tasks)}
       </section>
 
@@ -91,14 +117,14 @@ export function QuestsScreen() {
         <h2 id="habits-heading" className="text-lg px-1">
           Habits
         </h2>
-        {habits.length === 0 && <p className="opacity-70 px-1">No habits yet.</p>}
+        {habits.length === 0 && <p className="sys-empty">No habits yet</p>}
         {rows(habits)}
       </section>
 
       <button
         type="button"
         onClick={() => setSheet({ open: true, quest: null })}
-        className="sys-panel font-heading tracking-widest text-lg text-[var(--xp)]"
+        className="sys-panel font-heading tracking-widest text-lg text-[var(--xp)] flex items-center justify-center gap-2"
       >
         + NEW QUEST
       </button>

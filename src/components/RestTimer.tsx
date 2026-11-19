@@ -41,7 +41,7 @@ export function RestTimer() {
   const done = left === 0
 
   return (
-    <div className="sticky top-[env(safe-area-inset-top,0px)] z-10 sys-panel bg-[var(--bg)]! p-3 flex items-center gap-3" role="timer" aria-label="Rest timer">
+    <div className="sticky z-10 sys-panel bg-[var(--bg)]! p-3 flex items-center gap-3" style={{ top: "calc(env(safe-area-inset-top, 0px) + 52px)" }} role="timer" aria-label="Rest timer">
       <div className="flex-1 flex flex-col gap-1">
         <span className={`font-heading tracking-widest text-sm ${done ? "text-[var(--xp)]" : "opacity-80"}`}>{done ? "REST OVER · GO" : "REST"}</span>
         <div className="h-1.5 bg-black/50 overflow-hidden">
