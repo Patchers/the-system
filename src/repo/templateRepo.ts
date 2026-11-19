@@ -23,6 +23,14 @@ export const templateRepo = {
     return template
   },
 
+  /** Add several templates with strictly increasing createdAt so their order is stable. */
+  async addMany(list: readonly { name: string; exercises: TemplateExercise[] }[]): Promise<Template[]> {
+    const base = Date.parse(nowIso())
+    const rows: Template[] = list.map((t, i) => ({ ...stamp(new Date(base + i).toISOString()), name: t.name, exercises: t.exercises }))
+    await db.templates.bulkAdd(rows)
+    return rows
+  },
+
   async update(id: string, patch: Partial<Pick<Template, "name" | "exercises">>): Promise<Template> {
     const next = touch({ ...(await templateRepo.get(id)), ...patch }, nowIso())
     await db.templates.put(next)

@@ -112,6 +112,18 @@ Accumulate raw units, convert at 1 stat point per 10 units. Thresholds in consta
 - AGI ← `distanceKm`
 - Quest completions → the stat tagged on that quest
 
+### Training progression (`engine/progression.ts`, `records.ts`, `rotation.ts`)
+A template exercise with `repMin` + `repMax` is progressive. Progression fields live in
+the template's `exercises` JSON, and state is derived from logged `workoutSets`, so there
+is no extra table and no Supabase migration.
+- Every set at the working weight hits `repMax` → next session adds `incrementKg`.
+- Every set reaches `repMin` → same weight, target = lowest set's reps + 1.
+- Short of `repMin` → hold. `STALL_LIMIT` misses in a row at one weight → reset to
+  `RESET_FACTOR` of it.
+- Swap options keep their own history (keyed by exercise name).
+- Next programme day = least recently trained progressive template (no calendar).
+- Records: Epley e1RM; a lift's first session is a baseline, not a record.
+
 ---
 
 ## Screens — bottom tab bar, 5 tabs
@@ -120,8 +132,9 @@ Accumulate raw units, convert at 1 stat point per 10 units. Thresholds in consta
    assessment checklist, stat point allocation
 2. **QUESTS** — Daily Quest block pinned top with countdown to 04:00 rollover;
    then tasks, then habits. Swipe-right completes, long-press edits.
-3. **TRAINING** — start from template or freestyle. Big +/- steppers, avoid raw
-   keyboard input. Session history below.
+3. **TRAINING** — NEXT UP card with today's targets, other templates, freestyle.
+   In session: plan with targets and SWAP, set editor pre-filled to target, auto rest
+   timer. Template editor under MANAGE. Lift progress chart and session history below.
 4. **VITALS** — large calorie ring (today vs goal) with quick-add chips
    (+100 / +250 / +500) and a manual field. Weight, sleep, water below.
 5. **RECORDS** — dungeons, achievements, weekly Recharts, streak heatmap calendar,

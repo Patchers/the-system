@@ -40,4 +40,35 @@ describe("templateRepo", () => {
     await templateRepo.remove(t.id)
     expect(await templateRepo.list()).toHaveLength(0)
   })
+
+  it("builds lift history per exercise, oldest first", async () => {
+    await workoutRepo.create({ date: "2026-11-05", notes: "" }, [
+      { exerciseName: "Bench", reps: 8, weightKg: 62.5 },
+      { exerciseName: "Run", distanceKm: 5 },
+    ])
+    await workoutRepo.create({ date: "2026-11-01", notes: "" }, [
+      { exerciseName: "Bench", reps: 8, weightKg: 60 },
+      { exerciseName: "Dips", reps: 12 },
+    ])
+    const h = await workoutRepo.liftHistory(["Bench", "Dips", "Squat"])
+    expect(h.get("Bench")!.map((s) => s.date)).toEqual(["2026-11-01", "2026-11-05"])
+    expect(h.get("Dips")![0].sets).toEqual([{ reps: 12, weightKg: 0 }])
+    expect(h.get("Squat")).toEqual([])
+    expect(await workoutRepo.liftNames()).toEqual(["Bench"])
+  })
+
+  it("leaves deleted sessions out of lift history", async () => {
+    const { workout } = await workoutRepo.create({ date: "2026-11-01", notes: "" }, [{ exerciseName: "Bench", reps: 8, weightKg: 60 }])
+    await workoutRepo.remove(workout.id)
+    expect((await workoutRepo.liftHistory(["Bench"])).get("Bench")).toEqual([])
+  })
+
+  it("tracks when each template was last trained", async () => {
+    await workoutRepo.create({ date: "2026-11-01", notes: "", templateId: "A" }, [])
+    await workoutRepo.create({ date: "2026-11-03", notes: "", templateId: "A" }, [])
+    await workoutRepo.create({ date: "2026-11-02", notes: "", templateId: "B" }, [])
+    const used = await workoutRepo.lastUsedByTemplate()
+    expect(used.get("A")!.startsWith("2026-11-03")).toBe(true)
+    expect(used.get("B")!.startsWith("2026-11-02")).toBe(true)
+  })
 })

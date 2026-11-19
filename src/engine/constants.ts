@@ -90,6 +90,22 @@ export const VIT_UNIT_DIVISOR = 10
 /** AGI units = distanceKm * AGI_UNIT_MULTIPLIER */
 export const AGI_UNIT_MULTIPLIER = 1
 
+/* ---------- Training progression ---------- */
+/** Default load jump when every set hits the top of the rep range. */
+export const DEFAULT_INCREMENT_KG = 2.5
+/** Sessions in a row that miss the bottom of the rep range before a reset. */
+export const STALL_LIMIT = 2
+/** A reset drops the working weight to this fraction, then builds back up. */
+export const RESET_FACTOR = 0.9
+/** Rep ranges topping out at or below this count as heavy work for rest timing. */
+export const HEAVY_REP_MAX = 8
+export const REST_HEAVY_SEC = 150
+export const REST_LIGHT_SEC = 90
+/** Epley estimated one-rep max: w * (1 + reps / E1RM_DIVISOR). */
+export const E1RM_DIVISOR = 30
+/** Sets above this rep count are ignored for e1RM (the formula overestimates). */
+export const E1RM_MAX_REPS = 12
+
 /* ---------- Settings defaults ---------- */
 export const DEFAULT_CALORIE_GOAL = 2200
 export const DEFAULT_PENALTY_ENABLED = true
