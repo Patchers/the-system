@@ -1,10 +1,15 @@
 import { useState } from "react"
 import { logWorkout } from "../actions/logWorkout"
+import { loadStarterProgramme, nextUp, planTargets } from "../actions/planSession"
+import { LiftProgress } from "../components/LiftProgress"
 import { SessionPanel } from "../components/SessionPanel"
+import { TemplateEditor } from "../components/TemplateEditor"
 import { WorkoutHistory, type HistoryEntry } from "../components/WorkoutHistory"
-import type { TemplateExercise } from "../db/types"
+import type { Template, TemplateExercise } from "../db/types"
 import { STAT_KEYS } from "../engine/constants"
+import { isProgressive } from "../engine/progression"
 import { todayKey } from "../lib/date"
+import { STATUS_LABEL } from "../lib/format"
 import { isRepoError } from "../repo/errors"
 import { templateRepo } from "../repo/templateRepo"
 import { useLive } from "../repo/useLive"
@@ -36,14 +41,21 @@ export function TrainingScreen() {
   const [pendingTemplate, setPendingTemplate] = useState<DraftSet[] | null>(null)
   const [templateName, setTemplateName] = useState("")
   const [manage, setManage] = useState(false)
+  const [editing, setEditing] = useState<Template | null>(null)
 
   const data = useLive(async () => {
-    const [templates, workouts] = await Promise.all([templateRepo.list(), workoutRepo.list(HISTORY_LIMIT)])
+    const [templates, workouts, next] = await Promise.all([templateRepo.list(), workoutRepo.list(HISTORY_LIMIT), nextUp()])
+    templates.sort((a, b) => a.createdAt.localeCompare(b.createdAt))
     const history: HistoryEntry[] = await Promise.all(workouts.map(async (workout) => ({ workout, sets: await workoutRepo.setsFor(workout.id) })))
-    return { templates, history }
+    return { templates, history, next }
   })
 
   if (!data) return null
+  if (editing) return <TemplateEditor template={editing} onClose={() => setEditing(null)} />
+
+  const begin = async (t: Template) => session.start(t, await planTargets(t.exercises))
+  const hasProgramme = data.templates.some((t) => t.exercises.some(isProgressive))
+  const fmtKg = (n: number) => (Number.isInteger(n) ? String(n) : n.toFixed(1))
 
   const recent = [...new Set(data.history.flatMap((h) => h.sets.map((s) => s.exerciseName)))]
 
@@ -78,10 +90,42 @@ export function TrainingScreen() {
       {session.active ? (
         <SessionPanel recent={recent} onFinish={finish} />
       ) : (
+        <>
+        {data.next && (
+          <section className="sys-panel p-4 flex flex-col gap-3" aria-labelledby="next-heading">
+            <header className="flex justify-between items-baseline">
+              <h1 id="next-heading" className="text-xl">
+                {data.next.template.name}
+              </h1>
+              <span className="text-xs font-heading tracking-widest text-[var(--xp)]">NEXT UP</span>
+            </header>
+            <ul className="flex flex-col gap-1">
+              {data.next.template.exercises.map((e) => {
+                const t = data.next!.targets[e.name]
+                return (
+                  <li key={e.name} className="flex justify-between gap-2 text-sm">
+                    <span>{e.name}</span>
+                    <span className="tabular-nums opacity-80 text-right">
+                      {t ? `${t.sets} × ${t.status === "new" ? `${e.repMin}–${e.repMax}` : t.reps}${t.weightKg !== undefined ? ` @ ${fmtKg(t.weightKg)} kg` : ""}` : ""}
+                      {t && t.status !== "hold" && t.status !== "new" && (
+                        <span className={`block font-heading text-xs tracking-widest ${t.status === "up" ? "text-[var(--xp)]" : t.status === "reset" ? "text-[var(--danger)]" : "opacity-70"}`}>
+                          {STATUS_LABEL[t.status]}
+                        </span>
+                      )}
+                    </span>
+                  </li>
+                )
+              })}
+            </ul>
+            <button type="button" onClick={() => session.start(data.next!.template, data.next!.targets)} className="font-heading tracking-widest text-lg border border-[var(--xp)] text-[var(--xp)]">
+              BEGIN
+            </button>
+          </section>
+        )}
         <section className="sys-panel p-4 flex flex-col gap-3" aria-labelledby="start-heading">
           <header className="flex justify-between items-baseline">
             <h1 id="start-heading" className="text-xl">
-              Start session
+              {data.next ? "Other sessions" : "Start session"}
             </h1>
             {data.templates.length > 0 && (
               <button type="button" onClick={() => setManage((m) => !m)} className="text-xs font-heading tracking-widest opacity-70 min-h-0 min-w-0 px-2">
@@ -93,12 +137,17 @@ export function TrainingScreen() {
             <div key={t.id} className="flex gap-2">
               <button
                 type="button"
-                onClick={() => session.start(t)}
+                onClick={() => void begin(t)}
                 className="flex-1 text-left border border-[var(--border)] px-4 active:bg-[var(--glow)]/30"
               >
                 <span className="font-heading tracking-widest">{t.name}</span>
                 <span className="block text-xs opacity-70 truncate">{t.exercises.map((e) => e.name).join(" · ")}</span>
               </button>
+              {manage && (
+                <button type="button" onClick={() => setEditing(t)} aria-label={`Edit template ${t.name}`} className="border border-[var(--border)] font-heading text-xs tracking-widest px-2">
+                  EDIT
+                </button>
+              )}
               {manage && (
                 <button
                   type="button"
@@ -114,7 +163,17 @@ export function TrainingScreen() {
           <button type="button" onClick={() => session.start()} className="font-heading tracking-widest text-lg border border-[var(--xp)] text-[var(--xp)]">
             FREESTYLE
           </button>
+          {!hasProgramme && (
+            <button
+              type="button"
+              onClick={() => void loadStarterProgramme().then(() => showToast("PROGRAMME LOADED · 3 DAYS"))}
+              className="font-heading tracking-widest border border-[var(--accent)] text-[var(--accent)]"
+            >
+              LOAD 3-DAY LIFTING PROGRAMME
+            </button>
+          )}
         </section>
+        </>
       )}
 
       {pendingTemplate && (
@@ -138,6 +197,8 @@ export function TrainingScreen() {
           </div>
         </section>
       )}
+
+      {!session.active && <LiftProgress />}
 
       <section className="flex flex-col gap-3" aria-labelledby="history-heading">
         <h2 id="history-heading" className="text-lg px-1">

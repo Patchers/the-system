@@ -88,6 +88,20 @@ export interface TemplateExercise {
   targetReps?: number
   targetDistanceKm?: number
   targetDurationMin?: number
+  /**
+   * Progression fields. A lift with both `repMin` and `repMax` is progressive:
+   * the System sets each session's weight from its logged history.
+   * Stored inside the template's `exercises` JSON, so no schema change is needed.
+   */
+  repMin?: number
+  repMax?: number
+  /** Weight added when every set hits `repMax`. */
+  incrementKg?: number
+  /** Used only until the first session of this exercise is logged. */
+  startWeightKg?: number
+  restSec?: number
+  /** Swap options. Each name keeps its own progression history. */
+  alternatives?: string[]
 }
 
 export interface Template extends BaseRecord {

@@ -1,4 +1,5 @@
 import type { WorkoutSet } from "../db/types"
+import type { TargetStatus } from "../engine/progression"
 
 type SetLike = Pick<WorkoutSet, "reps" | "weightKg" | "distanceKm" | "durationMin">
 
@@ -20,4 +21,12 @@ export function summariseSets(sets: readonly Pick<WorkoutSet, "exerciseName">[])
   const counts = new Map<string, number>()
   for (const s of sets) counts.set(s.exerciseName, (counts.get(s.exerciseName) ?? 0) + 1)
   return [...counts].map(([name, n]) => `${name} ×${n}`).join(" · ")
+}
+
+/** Short label for how today's target relates to last time. */
+export const STATUS_LABEL: Record<TargetStatus, string> = {
+  new: "SET BASELINE",
+  up: "▲ LOAD UP",
+  hold: "■ BEAT LAST TIME",
+  reset: "▼ RESET",
 }

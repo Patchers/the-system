@@ -40,4 +40,17 @@ describe("logWorkout", () => {
     expect((await hunterRepo.get()).recoveryMode).toBe(false)
     expect(usePanelStore.getState().queue[0]?.title).toBe("RECOVERY COMPLETE")
   })
+
+  it("announces a new record when a lift beats its previous best", async () => {
+    await logWorkout({ date: "2026-11-01", notes: "" }, [{ exerciseName: "Bench", weightKg: 60, reps: 8 }])
+    usePanelStore.setState({ queue: [] })
+    const r = await logWorkout({ date: "2026-11-03", notes: "" }, [{ exerciseName: "Bench", weightKg: 62.5, reps: 8 }])
+    expect(r.records).toHaveLength(1)
+    expect(usePanelStore.getState().queue.some((p) => p.title === "NEW RECORD")).toBe(true)
+  })
+
+  it("does not call a lift's first session a record", async () => {
+    const r = await logWorkout({ date: "2026-11-01", notes: "" }, [{ exerciseName: "Bench", weightKg: 60, reps: 8 }])
+    expect(r.records).toEqual([])
+  })
 })

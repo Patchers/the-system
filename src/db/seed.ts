@@ -4,7 +4,7 @@
  */
 import type { SystemDB } from "./schema"
 import { stamp } from "./record"
-import type { Hunter, Quest, Settings } from "./types"
+import type { Hunter, Quest, Settings, TemplateExercise } from "./types"
 import {
   DAY_ROLLOVER_HOUR,
   DEFAULT_CALORIE_GOAL,
@@ -76,3 +76,52 @@ export async function seedIfEmpty(db: SystemDB, today: string, now: string): Pro
     return true
   })
 }
+
+type ProgrammeDay = { name: string; exercises: TemplateExercise[] }
+
+const lift = (name: string, sets: number, repMin: number, repMax: number, incrementKg: number, alternatives: string[]): TemplateExercise => ({
+  name,
+  targetSets: sets,
+  targetReps: repMin,
+  repMin,
+  repMax,
+  incrementKg,
+  alternatives,
+})
+
+/**
+ * The three-day upper / legs / upper programme. Loaded on request from the
+ * Training tab, not on first run. Start weights are left open: the first
+ * session's logged weights become the baseline. Dumbbell weights are per hand.
+ */
+export const STARTER_PROGRAMME: ProgrammeDay[] = [
+  {
+    name: "Upper Heavy",
+    exercises: [
+      lift("Bench press", 4, 6, 8, 2.5, ["Dumbbell bench press", "Machine chest press"]),
+      lift("Weighted pull-up", 4, 6, 8, 2.5, ["Lat pulldown", "Chin-up"]),
+      lift("Overhead press", 3, 6, 8, 2.5, ["Seated dumbbell press"]),
+      lift("EZ-bar curl", 3, 8, 10, 2.5, ["Barbell curl", "Cable curl"]),
+      lift("Skull crusher", 3, 8, 10, 2.5, ["Close-grip bench press", "Cable pushdown"]),
+    ],
+  },
+  {
+    name: "Legs",
+    exercises: [
+      lift("Back squat", 4, 6, 8, 5, ["Front squat", "Hack squat", "Leg press"]),
+      lift("Romanian deadlift", 3, 8, 10, 5, ["Hip thrust", "Lying leg curl"]),
+      lift("Bulgarian split squat", 3, 8, 12, 2, ["Walking lunge", "Leg press"]),
+      lift("Standing calf raise", 3, 12, 15, 2.5, ["Seated calf raise"]),
+    ],
+  },
+  {
+    name: "Upper Volume",
+    exercises: [
+      lift("Incline dumbbell press", 3, 10, 12, 2, ["Incline bench press", "Machine chest press"]),
+      lift("Barbell row", 3, 10, 12, 2.5, ["Chest-supported row", "Cable row"]),
+      lift("Dips", 3, 10, 12, 2.5, ["Close-grip bench press", "Machine dip"]),
+      lift("Hammer curl", 3, 10, 12, 1, ["Incline dumbbell curl"]),
+      lift("Overhead triceps extension", 3, 10, 12, 2, ["Cable pushdown"]),
+    ],
+  },
+]
