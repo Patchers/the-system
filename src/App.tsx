@@ -2,6 +2,7 @@ import { Suspense, lazy, useEffect, useState } from "react"
 import { checkAchievements } from "./actions/checkAchievements"
 import { runRankAssessment } from "./actions/promote"
 import { settlePenalties } from "./actions/settlePenalties"
+import { HudHeader } from "./components/HudHeader"
 import { SystemPanel } from "./components/SystemPanel"
 import { TabBar, type Tab } from "./components/TabBar"
 import { Toast } from "./components/Toast"
@@ -84,10 +85,12 @@ export default function App() {
 
   return (
     <>
-      <main className="min-h-dvh p-4 pb-24 max-w-lg mx-auto">
-        <Suspense fallback={<p className="font-heading tracking-widest opacity-60">LOADING…</p>}>
+      <HudHeader hunter={hunter} />
+      <main className="px-4 pt-4 pb-32 max-w-lg mx-auto">
+        <Suspense fallback={<p className="sys-empty">Loading…</p>}>
+        <div key={tab} className="screen-enter">
         {!ready ? (
-          <p className="font-heading tracking-widest opacity-60">CONNECTING TO THE SYSTEM…</p>
+          <p className="sys-empty">Connecting to the system…</p>
         ) : tab === "STATUS" ? (
           <StatusScreen />
         ) : tab === "QUESTS" ? (
@@ -101,6 +104,7 @@ export default function App() {
         ) : (
           <PendingScreen name={tab} />
         )}
+        </div>
         </Suspense>
       </main>
       <TabBar active={tab} onChange={setTab} />

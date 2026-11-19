@@ -11,7 +11,16 @@
   --xp: #00e5ff;
   --danger: #ff3b52;
 
+  /* One colour per rank. Used by rank emblems and quest difficulty tiles. */
+  --rank-e: #7f93ad;
+  --rank-d: #4da8ff;
+  --rank-c: #00e5ff;
+  --rank-b: #9b8cff;
+  --rank-a: #ff9f43;
+  --rank-s: #ffd34d;
+
   --font-heading: "Rajdhani", "Orbitron", system-ui, sans-serif;
+  --font-display: "Orbitron", "Rajdhani", system-ui, sans-serif;
   --font-body: "Inter", system-ui, sans-serif;
 
   --tap-min: 56px;
@@ -26,6 +35,7 @@
   --color-xp: var(--xp);
   --color-danger: var(--danger);
   --font-heading: "Rajdhani", "Orbitron", system-ui, sans-serif;
+  --font-display: "Orbitron", "Rajdhani", system-ui, sans-serif;
   --font-body: "Inter", system-ui, sans-serif;
 }
 
@@ -43,24 +53,380 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-h1, h2, h3, h4 {
-  font-family: var(--font-heading);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+/* Atmosphere: a lit horizon, a faint grid and a corner bloom. Built from tokens
+   so recovery mode turns the whole backdrop red. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(110% 52% at 50% -8%, color-mix(in srgb, var(--border) 38%, transparent), transparent 64%),
+    radial-gradient(70% 38% at 100% 100%, color-mix(in srgb, var(--xp) 10%, transparent), transparent 72%),
+    linear-gradient(color-mix(in srgb, var(--glow) 7%, transparent) 1px, transparent 1px) 0 0 / 36px 36px,
+    linear-gradient(90deg, color-mix(in srgb, var(--glow) 7%, transparent) 1px, transparent 1px) 0 0 / 36px 36px;
+  mask-image: linear-gradient(#000, rgba(0, 0, 0, 0.3));
+  -webkit-mask-image: linear-gradient(#000, rgba(0, 0, 0, 0.3));
 }
 
-/* System panel chrome: 1px border, glow, blur, notched corners */
-.sys-panel {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  box-shadow: 0 0 24px rgba(77, 168, 255, 0.35);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  clip-path: polygon(
-    16px 0, 100% 0,
-    100% calc(100% - 16px), calc(100% - 16px) 100%,
-    0 100%, 0 16px
-  );
+* {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--border) 60%, transparent) transparent;
+}
+
+@layer base {
+  h1, h2, h3, h4 {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  /* Panel-title tick. */
+  h1::before, h2::before {
+    content: "";
+    display: inline-block;
+    width: 0.2em;
+    height: 0.85em;
+    margin-right: 0.55em;
+    vertical-align: -0.06em;
+    background: var(--xp);
+    box-shadow: 0 0 10px var(--xp);
+  }
+
+  input {
+    transition: border-color 150ms, box-shadow 150ms;
+  }
+  input:focus {
+    outline: none;
+    border-color: var(--xp);
+    box-shadow: 0 0 0 1px var(--xp), 0 0 14px color-mix(in srgb, var(--xp) 30%, transparent);
+  }
+
+  button {
+    transition: background-color 120ms, border-color 120ms, color 120ms, transform 80ms, opacity 120ms;
+  }
+  button:not(:disabled):active {
+    transform: translateY(1px);
+  }
+  button:focus-visible,
+  [role="button"]:focus-visible,
+  summary:focus-visible {
+    outline: 2px solid var(--xp);
+    outline-offset: 2px;
+  }
+
+  /* Primary actions: the cyan-outlined buttons get a lit face. */
+  button[class*="border-[var(--xp)]"] {
+    background: linear-gradient(180deg, color-mix(in srgb, var(--xp) 16%, transparent), color-mix(in srgb, var(--xp) 4%, transparent));
+    box-shadow: inset 0 0 16px color-mix(in srgb, var(--xp) 16%, transparent);
+  }
+  button[class*="border-[var(--xp)]"]:not(:disabled):active {
+    background: color-mix(in srgb, var(--xp) 30%, transparent);
+  }
+  /* Secondary actions: a quiet panel face. */
+  button[class*="border-[var(--border)]"] {
+    background: color-mix(in srgb, var(--panel) 60%, transparent);
+  }
+  button[class*="border-[var(--border)]"]:not(:disabled):active {
+    background: color-mix(in srgb, var(--glow) 28%, transparent);
+  }
+  button[class*="border-[var(--danger)]"] {
+    background: color-mix(in srgb, var(--danger) 9%, transparent);
+  }
+}
+
+@layer components {
+  /* System panel chrome: 1px border, lit sheen, HUD corner brackets and real
+     diagonal edges on the notched corners. The outer glow in the spec is
+     clipped by clip-path, so the glow is drawn inside as an inset shadow. */
+  .sys-panel {
+    --notch: 16px;
+    background-color: var(--panel);
+    background-image:
+      linear-gradient(var(--accent), var(--accent)),
+      linear-gradient(var(--accent), var(--accent)),
+      linear-gradient(var(--accent), var(--accent)),
+      linear-gradient(var(--accent), var(--accent)),
+      linear-gradient(to bottom right, transparent 50%, var(--border) 50%, var(--border) calc(50% + 1.4px), transparent calc(50% + 1.4px)),
+      linear-gradient(to bottom right, transparent calc(50% - 1.4px), var(--border) calc(50% - 1.4px), var(--border) 50%, transparent 50%),
+      linear-gradient(180deg, color-mix(in srgb, var(--accent) 10%, transparent), transparent 64px);
+    background-position: right top, right top, left bottom, left bottom, left top, right bottom, left top;
+    background-size: 12px 2px, 2px 12px, 12px 2px, 2px 12px, var(--notch) var(--notch), var(--notch) var(--notch), 100% 100%;
+    background-repeat: no-repeat;
+    background-origin: border-box;
+    border: 1px solid var(--border);
+    box-shadow:
+      inset 0 0 34px color-mix(in srgb, var(--glow) 13%, transparent),
+      inset 0 1px 0 color-mix(in srgb, var(--accent) 30%, transparent);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    clip-path: polygon(
+      var(--notch) 0, 100% 0,
+      100% calc(100% - var(--notch)), calc(100% - var(--notch)) 100%,
+      0 100%, 0 var(--notch)
+    );
+  }
+
+  /* A row inside a panel, or a standalone list item. Lighter than a panel. */
+  .sys-row {
+    --notch: 10px;
+    background-color: color-mix(in srgb, var(--panel) 80%, transparent);
+    background-image:
+      linear-gradient(to bottom right, transparent 50%, var(--border) 50%, var(--border) calc(50% + 1.2px), transparent calc(50% + 1.2px)),
+      linear-gradient(to bottom right, transparent calc(50% - 1.2px), var(--border) calc(50% - 1.2px), var(--border) 50%, transparent 50%);
+    background-position: left top, right bottom;
+    background-size: var(--notch) var(--notch), var(--notch) var(--notch);
+    background-repeat: no-repeat;
+    background-origin: border-box;
+    border: 1px solid color-mix(in srgb, var(--border) 75%, transparent);
+    box-shadow: inset 0 0 18px color-mix(in srgb, var(--glow) 8%, transparent);
+    clip-path: polygon(
+      var(--notch) 0, 100% 0,
+      100% calc(100% - var(--notch)), calc(100% - var(--notch)) 100%,
+      0 100%, 0 var(--notch)
+    );
+  }
+
+  .sys-empty {
+    padding: 1rem;
+    text-align: center;
+    font-family: var(--font-heading);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    color: color-mix(in srgb, var(--accent) 60%, transparent);
+    border: 1px dashed color-mix(in srgb, var(--border) 55%, transparent);
+  }
+
+  .eyebrow {
+    font-family: var(--font-heading);
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    opacity: 0.65;
+  }
+
+  .chip {
+    display: inline-block;
+    font-family: var(--font-heading);
+    font-size: 0.68rem;
+    line-height: 1.5;
+    letter-spacing: 0.14em;
+    padding: 0 0.45rem;
+    color: var(--accent);
+    border: 1px solid color-mix(in srgb, var(--border) 65%, transparent);
+    background: color-mix(in srgb, var(--border) 12%, transparent);
+  }
+  .chip-hot {
+    color: var(--xp);
+    border-color: var(--xp);
+    background: color-mix(in srgb, var(--xp) 14%, transparent);
+    box-shadow: 0 0 10px color-mix(in srgb, var(--xp) 25%, transparent);
+  }
+
+  /* Big display numerals. */
+  .lvl {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 3.6rem;
+    line-height: 1;
+    color: var(--xp);
+    text-shadow: 0 0 24px color-mix(in srgb, var(--xp) 55%, transparent);
+  }
+  .lvl small {
+    font-size: 1rem;
+    letter-spacing: 0.3em;
+    margin-right: 0.6rem;
+    color: var(--accent);
+    text-shadow: none;
+  }
+
+  /* Rank emblem and difficulty tile: a notched square in the rank's colour. */
+  .rank-tile {
+    --rc: var(--rank-e);
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    font-family: var(--font-display);
+    font-weight: 700;
+    color: var(--rc);
+    border: 1px solid var(--rc);
+    background:
+      linear-gradient(135deg, color-mix(in srgb, var(--rc) 26%, transparent), color-mix(in srgb, var(--rc) 6%, transparent));
+    box-shadow: inset 0 0 14px color-mix(in srgb, var(--rc) 30%, transparent);
+    text-shadow: 0 0 12px var(--rc);
+    clip-path: polygon(22% 0, 100% 0, 100% 78%, 78% 100%, 0 100%, 0 22%);
+  }
+
+  /* Resource bar: slanted track, segment ticks every 10%, glowing fill. */
+  .bar-track {
+    position: relative;
+    height: 14px;
+    background: rgba(0, 0, 0, 0.55);
+    border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+    clip-path: polygon(5px 0, 100% 0, calc(100% - 5px) 100%, 0 100%);
+  }
+  .bar-track > i {
+    display: block;
+    height: 100%;
+    background: linear-gradient(90deg, color-mix(in srgb, var(--bar) 55%, #000), var(--bar));
+    box-shadow: 0 0 14px var(--bar);
+    transition: width 400ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .bar-track::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(90deg, transparent 0 calc(10% - 1px), rgba(5, 7, 13, 0.8) calc(10% - 1px) 10%);
+  }
+
+  .mini {
+    height: 4px;
+    background: color-mix(in srgb, var(--border) 28%, transparent);
+  }
+  .mini > i {
+    display: block;
+    height: 100%;
+    background: var(--xp);
+    box-shadow: 0 0 8px var(--xp);
+    transition: width 300ms;
+  }
+
+  /* Segmented progress, one slanted cell per item. */
+  .seg {
+    display: flex;
+    gap: 6px;
+  }
+  .seg > i {
+    flex: 1;
+    height: 9px;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid color-mix(in srgb, var(--border) 65%, transparent);
+    transform: skewX(-22deg);
+    transition: background-color 200ms, box-shadow 200ms;
+  }
+  .seg > i.on {
+    background: var(--xp);
+    border-color: var(--xp);
+    box-shadow: 0 0 12px color-mix(in srgb, var(--xp) 70%, transparent);
+  }
+
+  /* Persistent HUD header. */
+  .hud {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    padding-top: env(safe-area-inset-top, 0px);
+    background: linear-gradient(180deg, color-mix(in srgb, var(--bg) 94%, transparent), color-mix(in srgb, var(--bg) 72%, transparent));
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid color-mix(in srgb, var(--border) 45%, transparent);
+  }
+  .hud-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    height: 44px;
+    max-width: 32rem;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+  .hud-mark {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.78rem;
+    letter-spacing: 0.34em;
+    color: var(--accent);
+    text-shadow: 0 0 14px color-mix(in srgb, var(--glow) 75%, transparent);
+  }
+  .hud-lv {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: 0.82rem;
+    letter-spacing: 0.16em;
+  }
+  .hud-lv b {
+    font-family: var(--font-display);
+    font-weight: 700;
+    color: var(--xp);
+    margin-left: 0.25rem;
+  }
+  .hud-xp {
+    height: 3px;
+    background: color-mix(in srgb, var(--border) 28%, transparent);
+  }
+  .hud-xp > i {
+    display: block;
+    height: 100%;
+    background: linear-gradient(90deg, var(--glow), var(--xp));
+    box-shadow: 0 0 10px var(--xp);
+    transition: width 400ms;
+  }
+
+  /* Bottom navigation. */
+  .tabbar {
+    position: fixed;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 40;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    background: linear-gradient(0deg, var(--bg) 55%, color-mix(in srgb, var(--bg) 84%, transparent));
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid color-mix(in srgb, var(--border) 55%, transparent);
+  }
+  .tab {
+    position: relative;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    min-height: 62px;
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: 0.62rem;
+    letter-spacing: 0.14em;
+    color: color-mix(in srgb, var(--accent) 52%, transparent);
+    transition: color 200ms;
+  }
+  .tab svg {
+    width: 24px;
+    height: 24px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.7;
+    stroke-linecap: square;
+    stroke-linejoin: miter;
+  }
+  .tab-on {
+    color: var(--xp);
+  }
+  .tab-on svg {
+    filter: drop-shadow(0 0 6px var(--xp));
+  }
+  .tab-on::before {
+    content: "";
+    position: absolute;
+    top: -1px;
+    left: 24%;
+    right: 24%;
+    height: 2px;
+    background: var(--xp);
+    box-shadow: 0 0 12px var(--xp);
+  }
+  .tab-on::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(60% 90% at 50% 0%, color-mix(in srgb, var(--xp) 15%, transparent), transparent 72%);
+  }
 }
 
 /* Recovery mode swaps the accent for danger */
@@ -102,8 +468,23 @@ button, [role="button"] {
 @keyframes sys-blink {
   50% { opacity: 0; }
 }
+
+/* Screen change: the panels rise in one after another. The one orchestrated moment. */
+@keyframes screen-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: none; }
+}
+.screen-enter > * > * {
+  animation: screen-in 340ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.screen-enter > * > *:nth-child(2) { animation-delay: 50ms; }
+.screen-enter > * > *:nth-child(3) { animation-delay: 100ms; }
+.screen-enter > * > *:nth-child(4) { animation-delay: 150ms; }
+.screen-enter > * > *:nth-child(n + 5) { animation-delay: 200ms; }
+
 @media (prefers-reduced-motion: reduce) {
   .panel-enter { animation: sys-fade 200ms ease-out both; }
   .caret { animation: none; }
+  .screen-enter > * > * { animation: sys-fade 160ms ease-out both; animation-delay: 0ms !important; }
   * { transition-duration: 0.01ms !important; }
 }

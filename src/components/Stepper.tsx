@@ -45,11 +45,11 @@ export function Stepper({ label, value, onChange, step, min = 0, max = Number.PO
 
   useEffect(() => stop, [])
 
-  const btn = "font-heading text-3xl border border-[var(--border)] active:bg-[var(--glow)]/30 select-none"
+  const btn = "font-heading text-3xl border border-[var(--border)] select-none"
   return (
     <div className="flex items-center justify-between gap-3">
-      <span className="font-heading tracking-widest text-sm w-20 shrink-0">{label}</span>
-      <div className="flex items-center gap-2">
+      <span className="font-heading tracking-widest text-sm flex-1 min-w-0">{label}</span>
+      <div className="flex items-center gap-2 shrink-0">
         <button
           type="button"
           aria-label={`Decrease ${label}`}
@@ -62,9 +62,9 @@ export function Stepper({ label, value, onChange, step, min = 0, max = Number.PO
         >
           −
         </button>
-        <output className="font-heading text-2xl tabular-nums w-24 text-center" aria-label={label}>
+        <output className="font-display font-bold text-lg tabular-nums min-w-[5.5rem] text-center whitespace-nowrap text-[var(--xp)]" aria-label={label}>
           {Number.isInteger(value) ? value : value.toFixed(1)}
-          {unit && <span className="text-sm opacity-70 ml-1">{unit}</span>}
+          {unit && <span className="text-xs font-heading tracking-widest opacity-70 ml-1">{unit}</span>}
         </output>
         <button
           type="button"

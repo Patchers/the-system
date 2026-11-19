@@ -124,3 +124,7 @@ export const RANK_TITLES: Record<Rank, string> = {
   A: "National-Level Hunter",
   S: "Monarch",
 }
+
+/* ---------- Vitals display ---------- */
+/** Daily water target the water bar fills toward. Display only: nothing is penalised. */
+export const WATER_TARGET_ML = 2500

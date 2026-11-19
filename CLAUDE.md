@@ -152,6 +152,13 @@ is no extra table and no Supabase migration.
 - `<SystemPanel>`: fixed overlay, scale-in + typewriter reveal, optional ping,
   tap to dismiss, **queued** so multiple events play in sequence
 - Honour `prefers-reduced-motion` — skip typewriter and scale, fade only
+- Chrome: `.sys-panel` (notched, HUD corner brackets, inset glow), `.sys-row` for list
+  items, `.sys-empty` for empty states, `.chip`, `.bar-track`, `.seg`, `.mini`.
+  The outer glow above is clipped by `clip-path`, so glow is drawn as an inset shadow.
+- Rank colours: `--rank-e` … `--rank-s`, applied with `rankColor()` in `src/lib/rankColor.ts`.
+- Display numerals use Orbitron (`font-display`); headings Rajdhani; body Inter.
+- Persistent `HudHeader` (rank, level, XP line) above every tab; icon `TabBar` below.
+- Build colours with `color-mix()` on the tokens so recovery mode recolours everything.
 
 ---
 
